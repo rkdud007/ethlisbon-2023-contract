@@ -1,0 +1,1 @@
+sismo-connect-onchain-verifier/=packages/sismo-connect-solidity/lib/sismo-connect-onchain-verifier/

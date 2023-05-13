@@ -1,0 +1,3 @@
+[submodule "packages/sismo-connect-solidity/lib/sismo-connect-onchain-verifier"]
+	path = packages/sismo-connect-solidity/lib/sismo-connect-onchain-verifier
+	url = https://github.com/sismo-core/sismo-connect-onchain-verifier
