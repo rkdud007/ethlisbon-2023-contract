@@ -1,0 +1,3 @@
+[submodule "inheritance-contract"]
+	path = inheritance-contract
+	url = https://github.com/kariy/inheritance-contract.git
