@@ -45,7 +45,9 @@ export default function ExecuteInheritance() {
   const [responseBytes, setResponseBytes] = useState<string>("");
   const [error, setError] = useState<string>("");
   const [isInheritanced, setIsInheritanced] = useState<boolean>(false);
-  const [account, setAccount] = useState<`0x${string}`>("0x0");
+  const [account, setAccount] = useState<`0x${string}`>(
+    "0x3073F6Cd5799d754Ea93FcF54c53afd802477983"
+  );
   const [isCallerAddressKnown, setIsCallerAddressKnown] = useState<boolean>(false);
   const [walletClient, setWalletClient] = useState<WalletClient>(
     createWalletClient({

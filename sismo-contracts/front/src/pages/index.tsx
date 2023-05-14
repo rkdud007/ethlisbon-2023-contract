@@ -7,11 +7,11 @@ export default function Home() {
 
   return (
     <div className="container">
-      <h1>Check the gaurdian caller is eligible or not</h1>
+      <h1>Check the gaurdian caller is eligible</h1>
       <section>
         <ul>
           <li onClick={() => router.push("/execute-inheritance")}>
-            <h3>Execute inheritence</h3>
+            <h3>Execute inheritance</h3>
             {/* replace with the title below */}
             {/* <h3>Claim an airdrop anonymously</h3>
             <p>Sign an address with Sismo Connect where you wish to receive the airdrop</p> */}
