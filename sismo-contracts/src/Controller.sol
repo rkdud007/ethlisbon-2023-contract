@@ -10,7 +10,7 @@ import "sismo-connect-solidity/SismoLib.sol"; // <--- add a Sismo Connect import
  * This contract is used for tutorial purposes only
  * It will be used to demonstrate how to integrate Sismo Connect
  */
-contract Airdrop is
+contract Controller is
   ERC721,
   SismoConnect // <--- add a Sismo Connect inheritance
 {
@@ -29,7 +29,8 @@ contract Airdrop is
     SismoConnect(APP_ID) // <--- Sismo Connect constructor
   {}
 
-  function claimWithSismo(bytes memory response) public {
+  function executeInheritance(bytes memory response) public {
+    //can check if the user is a valid user of this group
     SismoConnectVerifiedResult memory result = verify({
       responseBytes: response,
       // we want the user to prove that he owns a Sismo Vault
@@ -46,6 +47,10 @@ contract Airdrop is
     // This way, all proofs that are generated from the same vault will try to mint the same tokenId
     // So if a user tries to claim twice with a proof from the same vault, the vaultId will be the same and the contract will revert
     uint256 tokenId = SismoConnectHelper.getUserId(result, AuthType.VAULT);
+
+    //2) do acount inactivity
+
+    // 3) change ownership of the token
     _mint(msg.sender, tokenId);
   }
 

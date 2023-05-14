@@ -22,7 +22,7 @@ import { devGroups } from "../config";
 export enum APP_STATES {
   init,
   receivedProof,
-  claimingNFT,
+  ExecuteInheritance,
 }
 
 // The application calls contracts on Mumbai testnet
@@ -40,15 +40,13 @@ export const sismoConnectConfig: SismoConnectClientConfig = {
   },
 };
 
-export default function ClaimAirdrop() {
+export default function ExecuteInheritance() {
   const [appState, setAppState] = useState<APP_STATES>(APP_STATES.init);
   const [responseBytes, setResponseBytes] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [tokenId, setTokenId] = useState<{ id: string }>();
-  const [account, setAccount] = useState<`0x${string}`>(
-    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8"
-  );
-  const [isAirdropAddressKnown, setIsAirdropAddressKnown] = useState<boolean>(false);
+  const [isInheritanced, setIsInheritanced] = useState<boolean>(false);
+  const [account, setAccount] = useState<`0x${string}`>("0x0");
+  const [isCallerAddressKnown, setIsCallerAddressKnown] = useState<boolean>(false);
   const [walletClient, setWalletClient] = useState<WalletClient>(
     createWalletClient({
       chain: userChain,
@@ -68,18 +66,18 @@ export default function ClaimAirdrop() {
       }) as WalletClient
     );
 
-    setIsAirdropAddressKnown(localStorage.getItem("airdropAddress") ? true : false);
-    if (isAirdropAddressKnown) {
-      setAccount(localStorage.getItem("airdropAddress") as `0x${string}`);
+    setIsCallerAddressKnown(localStorage.getItem("callerAddress") ? true : false);
+    if (isCallerAddressKnown) {
+      setAccount(localStorage.getItem("callerAddress") as `0x${string}`);
     }
-  }, [isAirdropAddressKnown]);
+  }, [isCallerAddressKnown]);
 
   async function connectWallet() {
-    router.push("/claim-airdrop");
+    router.push("/execute-inheritance");
     const address = await requestAccounts();
-    localStorage.setItem("airdropAddress", address);
+    localStorage.setItem("callerAddress", address);
     setAccount(address);
-    setIsAirdropAddressKnown(true);
+    setIsCallerAddressKnown(true);
   }
 
   function setResponse(responseBytes: string) {
@@ -93,12 +91,12 @@ export default function ClaimAirdrop() {
   // It is called with the responseBytes returned by the Sismo Vault
   // The responseBytes is a string that contains plenty of information about the user proofs and additional parameters that should hold with respect to the proofs
   // You can learn more about the responseBytes format here: https://docs.sismo.io/build-with-sismo-connect/technical-documentation/sismo-connect-client#getresponsebytes
-  async function claimWithSismo(responseBytes: string) {
-    setAppState(APP_STATES.claimingNFT);
+  async function executeInheritanceWithSismo(responseBytes: string) {
+    setAppState(APP_STATES.ExecuteInheritance);
     // switch the network
     await switchNetwork(userChain);
     try {
-      const tokenId = await callContract({
+      const res = await callContract({
         contractAddress,
         responseBytes,
         userChain,
@@ -107,12 +105,12 @@ export default function ClaimAirdrop() {
         walletClient,
       });
       // If the proof is valid, we update the user react state to show the tokenId
-      setTokenId({ id: tokenId });
+      setIsInheritanced(true);
     } catch (e) {
       setError(handleVerifyErrors(e));
     } finally {
       setAppState(APP_STATES.init);
-      localStorage.removeItem("airdropAddress");
+      localStorage.removeItem("callerAddress");
     }
   }
 
@@ -120,18 +118,18 @@ export default function ClaimAirdrop() {
     <>
       <BackButton />
       <div className="container">
-        {!tokenId && (
+        {!isInheritanced && (
           <>
-            <h1 style={{ marginBottom: 10 }}>Claim an airdrop</h1>
-            {!isAirdropAddressKnown && (
+            <h1 style={{ marginBottom: 10 }}>Check the inheritance eligiblity of caller</h1>
+            {!isCallerAddressKnown && (
               <p style={{ marginBottom: 40 }}>
-                Select on which address you want to receive the airdrop and sign it with Sismo
+                Select on which address you want to activate inheritance and sign it with Sismo
                 Connect
               </p>
             )}
 
-            {isAirdropAddressKnown ? (
-              <p style={{ marginBottom: 40 }}>You will receive the airdrop on {account}</p>
+            {isCallerAddressKnown ? (
+              <p style={{ marginBottom: 40 }}>You will activate inheritance on {account}</p>
             ) : (
               !error && (
                 <button className="connect-wallet-button" onClick={() => connectWallet()}>
@@ -152,9 +150,9 @@ export default function ClaimAirdrop() {
               // You can see more information about the Sismo Connect button in the Sismo Connect documentation: https://docs.sismo.io/build-with-sismo-connect/technical-documentation/sismo-connect-react
             }
             {!error &&
-              isAirdropAddressKnown &&
+              isCallerAddressKnown &&
               appState != APP_STATES.receivedProof &&
-              appState != APP_STATES.claimingNFT && (
+              appState != APP_STATES.ExecuteInheritance && (
                 <SismoConnectButton
                   // the client config created
                   config={sismoConnectConfig}
@@ -167,7 +165,7 @@ export default function ClaimAirdrop() {
                   // onResponseBytes calls a 'setResponse' function with the responseBytes returned by the Sismo Vault
                   onResponseBytes={(responseBytes: string) => setResponse(responseBytes)}
                   // Some text to display on the button
-                  text={"Claim with Sismo"}
+                  text={"Activate inheritance"}
                 />
               )}
 
@@ -176,33 +174,23 @@ export default function ClaimAirdrop() {
               <button
                 className="connect-wallet-button"
                 onClick={async () => {
-                  await claimWithSismo(responseBytes);
+                  await executeInheritanceWithSismo(responseBytes);
                 }}
-                value="Claim NFT"
+                value="Execute Inheritance"
               >
-                {" "}
-                Claim NFT{" "}
+                Execute Inheritance
               </button>
             )}
-            {appState == APP_STATES.claimingNFT && (
-              <p style={{ marginBottom: 40 }}>Claiming NFT...</p>
+            {appState == APP_STATES.ExecuteInheritance && (
+              <p style={{ marginBottom: 40 }}>Executing Inheritance...</p>
             )}
           </>
         )}
 
-        {tokenId && (
+        {isInheritanced && (
           <>
-            <h1>Airdrop claimed!</h1>
-            <p style={{ marginBottom: 20 }}>
-              The user has chosen an address to receive the airdrop
-            </p>
-            <div className="profile-container">
-              <div>
-                <h2>NFT Claimed</h2>
-                <b>tokenId: {tokenId?.id}</b>
-                <p>Address used: {account}</p>
-              </div>
-            </div>
+            <h1> Inheritance Executed!</h1>
+            <p style={{ marginBottom: 20 }}>0xaa is now owned by 0xbb</p>
           </>
         )}
 
